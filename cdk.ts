@@ -6,17 +6,23 @@ import {
 import { Function, Runtime, Code } from 'aws-cdk-lib/aws-lambda';
 import * as apiGateway from '@aws-cdk/aws-apigatewayv2-alpha';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
+import * as dotenv from 'dotenv';
+
+const nestEnvironment: dotenv.DotenvPopulateInput = {};
+
+dotenv.config({ processEnv: nestEnvironment });
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'CartServiceStack', {
   env: {
-    region: process.env.PRODUCT_AWS_REGION || 'eu-west-1',
+    region: nestEnvironment.PRODUCT_AWS_REGION || 'eu-west-1',
   },
 });
 const cartService = new NodejsFunction(stack, 'cartServiceLambda', {
   runtime: Runtime.NODEJS_18_X,
   functionName: 'cartService',
   entry: 'dist/main.js',
+  environment: nestEnvironment,
   bundling: {
     externalModules: [
       '@grpc/grpc-js',
@@ -25,6 +31,14 @@ const cartService = new NodejsFunction(stack, 'cartServiceLambda', {
       'amqplib',
       'mqtt',
       'nats',
+      'mysql',
+      'mysql2',
+      'pg-query-stream',
+      'better-sqlite3',
+      'sqlite3',
+      'tedious',
+      'better-sqlite3',
+      'oracledb',
     ],
   },
 });
