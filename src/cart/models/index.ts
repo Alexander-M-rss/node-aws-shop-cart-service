@@ -5,7 +5,6 @@ export type Product = {
   price: number,
 };
 
-
 export type CartItem = {
   product: Product,
   count: number,
