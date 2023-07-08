@@ -13,7 +13,7 @@ CREATE TABLE cart_items (
   PRIMARY KEY (cart_id, product_id)
 );
 
-CREATE OR REPLACE FUNCTION update_cart_timestamp()
+CREATE OR REPLACE FUNCTION item_update_cart_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
   UPDATE carts
@@ -23,9 +23,23 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_cart_timestamp_trigger
+CREATE TRIGGER item_update_cart_timestamp_trigger
 AFTER INSERT OR UPDATE OR DELETE ON cart_items
 FOR EACH ROW
+EXECUTE FUNCTION item_update_cart_timestamp();
+
+CREATE OR REPLACE FUNCTION update_cart_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER status_update_cart_timestamp_trigger
+BEFORE UPDATE ON carts
+FOR EACH ROW
+WHEN (OLD.status IS DISTINCT FROM NEW.status)
 EXECUTE FUNCTION update_cart_timestamp();
 
 CREATE TABLE users (
