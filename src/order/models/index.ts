@@ -2,9 +2,8 @@ import { CartItem } from '../../cart/models';
 
 export type Order = {
   id?: string,
-  userId: string;
-  cartId: string;
-  items: CartItem[]
+  user_id: string;
+  cart_id: string;
   payment: {
     type: string,
     address?: any,
@@ -15,6 +14,15 @@ export type Order = {
     address: any,
   },
   comments: string,
-  status: string;
+  status: OrderStatus;
   total: number;
+}
+
+export enum OrderStatus {
+  OPEN = "OPEN",
+  APPROVED = "APPROVED",
+  CONFIRMED = "CONFIRMED",
+  SENT = "SENT",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
 }
