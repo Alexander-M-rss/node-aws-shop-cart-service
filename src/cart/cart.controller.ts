@@ -1,12 +1,11 @@
-import { Controller, Get, Delete, Put, Body, Req, Post, UseGuards, HttpStatus } from '@nestjs/common';
-
+import { Controller, Get, Delete, Put, Body, Req, Post, UseGuards, HttpStatus, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { BasicAuthGuard, JwtAuthGuard } from '../auth';
-import { OrderService } from '../order';
+import { Order, OrderService } from '../order';
 import { AppRequest, getUserIdFromRequest } from '../shared';
-
 import { calculateCartTotal } from './models-rules';
 import { CartService } from './services';
 import { UpdateUserCartDTO } from './dto/update-user-cart.dto';
+import { CartStatus } from './models';
 
 @Controller('api/profile/cart')
 export class CartController {
@@ -78,19 +77,36 @@ export class CartController {
 
     const { id: cartId, items } = cart;
     const total = calculateCartTotal(cart);
-    const order = this.orderService.create({
-      ...body, // TODO: validate and pick only necessary data
-      userId,
-      cartId,
-      items,
-      total,
-    });
-    this.cartService.removeByUserId(userId);
+    let trx;
+    let order: Order;
+    let cartStatus: string;
+
+    try {
+      trx = await this.cartService.createTransaction();
+      order = this.orderService.create({
+        ...body, // TODO: validate and pick only necessary data
+        userId,
+        cartId,
+        items,
+        total,
+      });
+      const [{ status }] = await this.cartService.changeCartStatusTransacted(trx, cartId);
+      await trx.commit();
+      cartStatus = status;
+    } catch (error) {
+      await trx.rollback();
+      
+      throw new InternalServerErrorException(`Transaction failed and rolled back: ${error}`);
+    } 
 
     return {
       statusCode: HttpStatus.OK,
       message: 'OK',
-      data: { order }
+      data: { 
+        cart_status: cartStatus,
+        order 
+      }
     }
   }
 }
+

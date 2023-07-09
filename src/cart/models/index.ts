@@ -14,3 +14,8 @@ export type Cart = {
   id: string,
   items: CartItem[],
 }
+
+export enum CartStatus {
+  OPEN = 'OPEN',
+  ORDERED = 'ORDERED',
+}

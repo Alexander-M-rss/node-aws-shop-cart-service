@@ -1,19 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { v4 } from 'uuid';
-import { Cart, CartItem } from '../models';
+import { Injectable } from '@nestjs/common';
+import { CartStatus, Cart } from '../models';
 import pgClient from '../../db';
 import { UpdateUserCartDTO } from '../dto/update-user-cart.dto';
+import { Knex } from 'knex';
 
 @Injectable()
 export class CartService {
 
-  async findByUserId(userId: string): Promise<Cart>{
+  async findByUserId(userId: string, status = CartStatus.OPEN): Promise<Cart>{
     if(!userId) {
       return null;
     }
 
     const cart = await pgClient('carts')
     .where('user_id', userId)
+    .where('status', status)
     .first();
 
     if(!cart) {
@@ -53,7 +54,7 @@ export class CartService {
       return userCart;
     }
 
-    const newCartUserId = userId || v4();
+    const newCartUserId = userId;
     const newUserCart = (await this.createByUserId(newCartUserId))[0];
 
     newUserCart.items = [];
@@ -105,5 +106,17 @@ export class CartService {
         .where('carts.user_id', userId)
         .del();
     });
+  }
+
+  async createTransaction() {
+
+    return await pgClient.transaction();
+  }
+
+  async changeCartStatusTransacted(trx: Knex.Transaction<any, any[]>, cartId:string, status = CartStatus.ORDERED) {
+     return await trx('carts')
+      .where('carts.id', cartId)
+      .update({ status })
+      .returning('status')
   }
 }
