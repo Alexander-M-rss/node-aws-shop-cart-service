@@ -72,16 +72,18 @@ export class CartService {
     const { product , count } = updateUserCartDTO;
 
     if (count > 0) {
-      await pgClient('cart_items')
-      .insert({ product_id: product.id, count, cart_id: id })
-      .onConflict(['cart_id', 'product_id'])
-      .merge()
-      .returning('*');
+        await pgClient('cart_items')
+        .insert({ product_id: product.id, count, cart_id: id })
+        .onConflict(['cart_id', 'product_id'])
+        .merge()
+        .returning('*');
       
+      const { updatedAt } = await pgClient('carts').select('updated_at').where('id', id).first();
       const updatedCart = {
         id,
         ...rest,
-        items: [ updateUserCartDTO, ...items],
+        updatedAt,
+        items: [ updateUserCartDTO, ...items.filter((item) => item.product.id !== product.id)],
       }
   
       return updatedCart;
@@ -91,9 +93,11 @@ export class CartService {
     .where({ cart_id: id, product_id: product.id })
     .del();
     
+    const { updatedAt } = await pgClient('carts').select('updated_at').where('id', id).first();
     const updatedCart = {
       id,
       ...rest,
+      updatedAt,
       items: [...items.filter((item) => item.product.id !== product.id)],
     }
 
