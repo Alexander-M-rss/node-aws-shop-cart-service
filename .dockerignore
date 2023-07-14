@@ -1,0 +1,20 @@
+#This folder will be created on the 'dependencies' stage so no copying is required
+node_modules
+#This folder will be created on the 'build' stage so no copying is required
+dist
+
+#Folders and files are not required in production version
+cdk.out
+scripts
+**/**/*.spec.ts
+test
+# .env is already ignored by .gitignore and out of the repository and it will be copied by local build only
+.env.example 
+.eslint.js
+.pritierrc
+Dockerfile
+.dockerignore
+README.md
+# git related data is not required inside the image
+.gitignore
+.git
