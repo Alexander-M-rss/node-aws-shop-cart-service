@@ -8,7 +8,7 @@ cdk.out
 scripts
 **/**/*.spec.ts
 test
-# .envfile shouldn't been exposed to image even in local build
+# .envfile shouldn't been copied to image even in local build
 .env* 
 .eslint.js
 .pritierrc
