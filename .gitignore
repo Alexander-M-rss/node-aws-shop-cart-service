@@ -1,3 +1,4 @@
+.env
 # compiled output
 /dist
 /node_modules
@@ -36,3 +37,7 @@ lerna-debug.log*
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
