@@ -8,8 +8,8 @@ cdk.out
 scripts
 **/**/*.spec.ts
 test
-# .env is already ignored by .gitignore and out of the repository and it will be copied by local build only
-.env.example 
+# .envfile shouldn't been exposed to image even in local build
+.env* 
 .eslint.js
 .pritierrc
 Dockerfile

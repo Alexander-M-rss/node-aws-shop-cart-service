@@ -16,9 +16,6 @@ FROM alpine as prod
 RUN apk add --update nodejs
 WORKDIR /app
 COPY --from=build /app/dist ./dist
-# uncomment next line if build locally and .env is used
-# COPY --from=build /app/.env ./
-ENV NODE_ENV=production
 ENV PORT=80
 EXPOSE 80
 CMD ["node", "./dist/main"]
