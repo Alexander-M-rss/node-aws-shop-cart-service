@@ -1,3 +1,4 @@
+/.elasticbeanstalk
 .env
 # compiled output
 /dist
